@@ -2,20 +2,96 @@
 
 // declaration d'un nombre aleatoire
 Random rand = new Random();
+bool IsIsNbLigneOk = false;
+bool IsIsNbColOk = false;
+bool IsIsNbBombOk = false;
+int nbLigne = 0;
+int nbCol = 0;
+int nbBomb = 0;
+do
+{
+    Console.Write("Encodez le nombre le lignes : ");
+    IsIsNbLigneOk = int.TryParse(Console.ReadLine(), out nbLigne);
+} while (!IsIsNbLigneOk);
+
+do
+{
+    Console.Write("Encodez le nombre le colones : ");
+    IsIsNbColOk = int.TryParse(Console.ReadLine(), out nbCol);
+} while (!IsIsNbColOk);
+
+do
+{
+    Console.Write("Encodez le nombre le bombes : ");
+    IsIsNbBombOk = int.TryParse(Console.ReadLine(), out nbBomb);
+} while (!IsIsNbBombOk);
+
+Console.Clear();
 
 // declaration du champ de mine 
-Tile[,] field = new Tile[10,10];
-(int x, int y) = (0, 0); // postion initial du curseur
+Tile[,] field = new Tile[nbLigne, nbCol];
+
+// postion initial du curseur
+(int x, int y) = (0, 0); 
+
 // remplir les champ de mine avec une fonction
-FillBombs(field, 10);
+FillBombs(field, nbBomb);
+
+// affichage
 DisplayFlied(field);
 
-while (true)  // mettre les conditions de victoire
+
+do
 {
-    (x, y) = Move(field, x,y); // renvois la position du curseur 
+    (x, y) = Move(field, x, y); // renvois la position du curseur 
     CheckTile(field, x, y);  // va mettre la case en visile
     DisplayFlied(field);      // affiche la grille
+
+} while (WinCondition(field,x,y));  // mettre les conditions de victoire
+
+
+Console.ReadKey();  
+
+
+bool WinCondition(Tile[,] field, int x ,int y)
+{
+    if (field[x, y].Value == 9)
+    {
+        Console.SetCursorPosition(0,0);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Vous avez perdu");
+        Console.ResetColor();
+        return false;
+    }
+    // si tout les il ne reste plus que des bombes vous avez gagné
+    if ( CountRemaining(field) == 10)
+    {
+        Console.SetCursorPosition(0, 0);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("C'est gagné");
+        Console.ResetColor();
+        return false;
+    }
+     return true;
 }
+
+int CountRemaining(Tile[,] field)
+{
+    int sum = 0;
+    for (int i = 0; i < field.GetLength(0); i++)
+    {
+        for (int j = 0; j < field.GetLength(1); j++)
+        {
+            if (!field[i, j].IsVisible)
+            {
+                sum++;
+            }
+        }
+    }
+    return sum;
+}
+
+
 
 (int x, int y) Move(Tile[,]field,int x, int y)
 {
@@ -111,6 +187,7 @@ void Aura(Tile[,] field, int x, int y)
             });
      
 }
+
 
 void Convoluate(Tile[,] field, int x, int y, Action< Tile[,],int, int > action )  // action est un delegue en paramettre
 {
