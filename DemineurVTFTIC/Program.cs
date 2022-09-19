@@ -5,42 +5,52 @@ Random rand = new Random();
 
 // declaration du champ de mine 
 Tile[,] field = new Tile[10,10];
-
+(int x, int y) = (0, 0); // postion initial du curseur
 // remplir les champ de mine avec une fonction
 FillBombs(field, 10);
 DisplayFlied(field);
 
 while (true)  // mettre les conditions de victoire
 {
-    Console.SetCursorPosition(0, 0);
-    Console.Write(" Horizontal = ");
-    if(int.TryParse(Console.ReadLine(), out int x))
-    {
-        Console.Write(" Vertical = ");
-        if (int.TryParse(Console.ReadLine(), out int y))
-        {
-            CheckTile(field, x, y);  // va mettre la case en visile
-            DisplayFlied(field);      // affiche la grille
-            if(field[x,y].Value == 9)
-            {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("BOUUUUM !!!!");
-                Console.ResetColor();
-                break;
-            }
-        }
-        else
-        {
-            Console.WriteLine("doit etre un nombre compris entre 0 et 9 !");
-        }
-    }
-    else
-    {
-        Console.WriteLine("doit etre un nombre compris entre 0 et 9 !");
-    }
+    (x, y) = Move(field, x,y); // renvois la position du curseur 
+    CheckTile(field, x, y);  // va mettre la case en visile
+    DisplayFlied(field);      // affiche la grille
 }
 
+(int x, int y) Move(Tile[,]field,int x, int y)
+{
+    ConsoleKey? key = null;
+    while(key != ConsoleKey.Spacebar)
+    {
+        Console.SetCursorPosition(x * 2 + 5, y + 2);
+        key = Console.ReadKey(true).Key;
+        switch (key)
+        {
+            case ConsoleKey.UpArrow:
+                if( y > 0 )
+                    y--;
+                break;
+
+            case ConsoleKey.DownArrow:
+                if( y < field.GetLength(1)-1 )
+                    y++;
+                break;
+
+            case ConsoleKey.LeftArrow:
+                if( x > 0 )
+                    x--;
+                break;
+
+            case ConsoleKey.RightArrow:
+                if( x < field.GetLength(0)-1)
+                    x++;
+                break;
+            default:
+                break;
+        }
+    }   
+    return (x,y);
+}
 
 void CheckTile(Tile[,] field, int x, int y)
 {
@@ -70,8 +80,7 @@ void DisplayFlied(Tile[,] field)
             }
             Console.Write(field[x, y].IsVisible ? field[x,y].Value : "♦");
             Console.ResetColor();   
-         }
-       
+         }   
     }
 }
 
